@@ -945,7 +945,7 @@ void Gateway::heartbeatLoop()
 
         QoSHeartbeat heartbeat;
         heartbeat.seq = lastReceivedSequence;
-        heartbeat.qos->ver = 27;
+        heartbeat.qos->ver = 30;
         heartbeat.qos->active = true;
         heartbeat.qos->reasons = { "foregrounded" };
 
