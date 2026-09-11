@@ -28,6 +28,9 @@ public:
 
     void regenerateClientHeartbeatSessionId();
 
+    void setDiscordLocale(const QString &locale);
+    QString discordLocale() const;
+
     ClientProperties buildClientProperties(const ClientPropertiesBuildParams &params) const;
 
 private:
@@ -37,6 +40,7 @@ private:
     QString launchId;
     QString launchSignature;
     QString clientHeartbeatSessionId;
+    QString locale = "en-US";
 };
 
 } // namespace Discord

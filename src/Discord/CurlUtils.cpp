@@ -138,6 +138,17 @@ UserAgentProps getUserAgentProps()
     return { "Windows", "Chrome", "142.0.0.0", "10" };
 }
 
+QString getSystemLocale()
+{
+    static const QString locale = [] {
+        QString name = QLocale::system().name();
+        if (name.isEmpty() || name == "C")
+            return QString("en-US");
+        return name.replace('_', '-');
+    }();
+    return locale;
+}
+
 void applyCommonOptions(CURL *curl)
 {
     static const QString certPath = getCertificatePath();
@@ -173,7 +184,7 @@ void applyProxy(CURL *curl, const Core::ProxyConfig &proxy)
 void appendDiscordHeaders(curl_slist **headers, const ClientIdentity &identity, const QString &referer)
 {
     static const QString tz = QString::fromUtf8(QTimeZone::systemTimeZoneId());
-    static const QString locale = QLocale::system().name();
+    const QString locale = identity.discordLocale();
 
     ClientPropertiesBuildParams params;
     params.clientAppState = "focused";

@@ -20,6 +20,19 @@ void ClientIdentity::regenerateClientHeartbeatSessionId()
     clientHeartbeatSessionId = QUuid::createUuid().toString(QUuid::WithoutBraces);
 }
 
+void ClientIdentity::setDiscordLocale(const QString &newLocale)
+{
+    QMutexLocker locker(&mutex);
+    if (!newLocale.isEmpty())
+        locale = newLocale;
+}
+
+QString ClientIdentity::discordLocale() const
+{
+    QMutexLocker locker(&mutex);
+    return locale;
+}
+
 QString ClientIdentity::generateLaunchSignature()
 {
     QUuid uuid = QUuid::createUuid();
@@ -49,7 +62,7 @@ ClientProperties ClientIdentity::buildClientProperties(
     properties.os = props.os;
     properties.browser = props.browser;
     properties.device = "";
-    properties.systemLocale = "en-US";
+    properties.systemLocale = CurlUtils::getSystemLocale();
     properties.hasClientMods = false;
     properties.browserUserAgent = userAgent;
     properties.browserVersion = props.browserVersion;

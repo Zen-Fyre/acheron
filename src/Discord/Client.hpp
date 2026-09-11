@@ -253,6 +253,7 @@ private slots:
 private:
     void fetchMessages(Snowflake channelId, QUrlQuery query, int limit, MessagesCallback callback);
     void indexGuildMappings(const GatewayGuild &guild);
+    void applyDiscordLocale();
     void removeGuildMappings(Snowflake guildId);
 
     struct UploadState

@@ -540,6 +540,8 @@ void Client::onGatewayReady(const Ready &data)
     if ((!settings.guildFolders.has_value() || settings.guildFolders->folders.isEmpty()) && data.userSettings.hasValue() && !data.userSettings->guildFolders->isEmpty())
         settings.guildFolders = guildFoldersFromLegacy(data.userSettings->guildFolders.get());
 
+    applyDiscordLocale();
+
     me = data.user;
 
     emit ready(data);
@@ -563,10 +565,17 @@ void Client::onGatewayUserSettingsProtoUpdate(const UserSettingsProtoUpdate &eve
             settings = updated;
         }
 
+        applyDiscordLocale();
         emit settingsChanged();
     }
 
     emit userSettingsProtoUpdated(event);
+}
+
+void Client::applyDiscordLocale()
+{
+    if (settings.localization.has_value() && settings.localization->locale.has_value())
+        identity.setDiscordLocale(settings.localization->locale.value());
 }
 
 void Client::onGatewayMessageCreate(const Message &msg)
