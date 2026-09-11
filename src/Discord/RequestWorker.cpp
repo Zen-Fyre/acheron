@@ -192,6 +192,8 @@ CURL *RequestWorker::buildEasyHandle(TransferContext *ctx)
     curl_easy_setopt(curl, CURLOPT_SHARE, share);
 
     curl_slist *headers = nullptr;
+    if (desc.method != HttpClient::Method::GET)
+        headers = curl_slist_append(headers, "Origin: https://discord.com");
     if (desc.external) {
         if (!desc.contentType.isEmpty())
             headers = curl_slist_append(headers, ("Content-Type: " + desc.contentType).toUtf8().constData());
