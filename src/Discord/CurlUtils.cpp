@@ -24,7 +24,7 @@ namespace CurlUtils {
 static int cachedBuildNumber = 0;
 static bool buildNumberFetchInFlight = false;
 static std::vector<std::function<void()>> buildNumberWaiters;
-static constexpr int fallbackBuildNumber = 482285;
+static constexpr int fallbackBuildNumber = 600539;
 static constexpr int BUILD_NUMBER_TIMEOUT_MS = 10000;
 
 static void resolveBuildNumberWaiters()
