@@ -200,7 +200,7 @@ CURL *RequestWorker::buildEasyHandle(TransferContext *ctx)
     } else {
         std::string sToken = token.toStdString();
         headers = curl_slist_append(headers, ("Authorization: " + sToken).c_str());
-        if (!desc.multipart)
+        if (!desc.multipart && !desc.body.isEmpty())
             headers = curl_slist_append(headers, "Content-Type: application/json");
 
         CurlUtils::appendDiscordHeaders(&headers, identity, "https://discord.com/channels/@me");
