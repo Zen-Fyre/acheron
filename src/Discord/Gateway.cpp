@@ -693,7 +693,7 @@ void Gateway::identify()
 {
     ClientPropertiesBuildParams params;
     params.clientAppState = "focused";
-    params.includeClientHeartbeatSessionId = false;
+    params.includeClientHeartbeatSessionId = true;
     params.isFastConnect = false;
     params.gatewayConnectReasons = "AppSkeleton";
     ClientProperties properties = identity.buildClientProperties(params);
