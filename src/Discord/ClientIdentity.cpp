@@ -33,6 +33,12 @@ QString ClientIdentity::discordLocale() const
     return locale;
 }
 
+void ClientIdentity::setAppFocused(bool focused)
+{
+    QMutexLocker locker(&mutex);
+    appFocused = focused;
+}
+
 QString ClientIdentity::generateLaunchSignature()
 {
     QUuid uuid = QUuid::createUuid();
@@ -76,7 +82,7 @@ ClientProperties ClientIdentity::buildClientProperties(
     properties.clientEventSource = nullptr;
     properties.clientLaunchId = launchId;
     properties.launchSignature = launchSignature;
-    properties.clientAppState = params.clientAppState;
+    properties.clientAppState = appFocused ? "focused" : "unfocused";
 
     if (params.isFastConnect.has_value())
         properties.isFastConnect = params.isFastConnect.value();

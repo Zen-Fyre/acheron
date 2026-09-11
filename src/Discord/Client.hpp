@@ -135,6 +135,7 @@ public:
     void ackBulk(const QList<AckEntry> &entries);
 
     void sendVoiceStateUpdate(Snowflake guildId, Snowflake channelId, bool selfMute, bool selfDeaf);
+    void setVoiceConnected(bool connected);
 
     void leaveGuild(Snowflake guildId);
 
@@ -254,6 +255,7 @@ private:
     void fetchMessages(Snowflake channelId, QUrlQuery query, int limit, MessagesCallback callback);
     void indexGuildMappings(const GatewayGuild &guild);
     void applyDiscordLocale();
+    void updateActiveState();
     void removeGuildMappings(Snowflake guildId);
 
     struct UploadState
@@ -303,6 +305,9 @@ private:
 
     Proto::PreloadedUserSettings settings;
     User me;
+
+    bool appFocused = true;
+    bool voiceConnected = false;
 };
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

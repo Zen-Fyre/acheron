@@ -57,6 +57,8 @@ ClientInstance::ClientInstance(const AccountInfo &info,
     messageManager->setEmojiManager(emojiManager);
 #ifndef ACHERON_NO_VOICE
     voiceManager = new Audio::VoiceManager(info.id, info.proxy, this);
+    connect(voiceManager, &Audio::VoiceManager::voiceConnected, this, &ClientInstance::onVoiceConnected);
+    connect(voiceManager, &Audio::VoiceManager::voiceDisconnected, this, &ClientInstance::onVoiceDisconnected);
 #endif
 
     connect(client, &Discord::Client::stateChanged, this, &ClientInstance::stateChanged);
@@ -296,6 +298,16 @@ ClientInstance::ClientInstance(const AccountInfo &info,
                 voiceManager->handleVoiceServerUpdate(event);
             });
 #endif
+}
+
+void ClientInstance::onVoiceConnected()
+{
+    client->setVoiceConnected(true);
+}
+
+void ClientInstance::onVoiceDisconnected()
+{
+    client->setVoiceConnected(false);
 }
 
 void ClientInstance::saveGuild(const Discord::GatewayGuild &guild, const QList<Discord::Member> *members, Snowflake myId, QSqlDatabase &db)

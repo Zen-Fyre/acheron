@@ -13,7 +13,6 @@ namespace Discord {
 struct ClientPropertiesBuildParams
 {
     bool includeClientHeartbeatSessionId;
-    QString clientAppState;
     std::optional<bool> isFastConnect;
     std::optional<QString> gatewayConnectReasons;
 };
@@ -31,6 +30,8 @@ public:
     void setDiscordLocale(const QString &locale);
     QString discordLocale() const;
 
+    void setAppFocused(bool focused);
+
     ClientProperties buildClientProperties(const ClientPropertiesBuildParams &params) const;
 
 private:
@@ -41,6 +42,7 @@ private:
     QString launchSignature;
     QString clientHeartbeatSessionId;
     QString locale = "en-US";
+    bool appFocused = true;
 };
 
 } // namespace Discord

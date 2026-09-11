@@ -1,6 +1,7 @@
 #include "Client.hpp"
 
 #include <QDebug>
+#include <QGuiApplication>
 #include <QJsonObject>
 #include <QPointer>
 
@@ -57,6 +58,15 @@ Client::Client(const QString &token, const QString &gatewayUrl, const QString &b
 
     gateway = new Gateway(token, gatewayUrl, identity, proxy, this);
     httpClient = new HttpClient(baseUrl, token, identity, proxy, captchaResolver, this);
+
+    appFocused = !qGuiApp || qGuiApp->applicationState() == Qt::ApplicationActive;
+    if (qGuiApp) {
+        connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+            appFocused = state == Qt::ApplicationActive;
+            updateActiveState();
+        });
+    }
+    updateActiveState();
 
     connect(gateway, &Gateway::connected, this, &Client::onConnected);
     connect(gateway, &Gateway::disconnected, this, &Client::onDisconnected);
@@ -1026,6 +1036,20 @@ void Client::leaveGuild(Snowflake guildId)
 void Client::debugForceReconnect()
 {
     gateway->debugForceReconnect();
+}
+
+void Client::setVoiceConnected(bool connected)
+{
+    if (voiceConnected == connected)
+        return;
+    voiceConnected = connected;
+    updateActiveState();
+}
+
+void Client::updateActiveState()
+{
+    identity.setAppFocused(appFocused);
+    gateway->setActiveState(appFocused, voiceConnected);
 }
 
 void Client::ackMessage(Snowflake channelId, Snowflake messageId, int flags, int lastViewed)

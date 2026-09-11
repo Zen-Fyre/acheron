@@ -187,7 +187,6 @@ void appendDiscordHeaders(curl_slist **headers, const ClientIdentity &identity, 
     const QString locale = identity.discordLocale();
 
     ClientPropertiesBuildParams params;
-    params.clientAppState = "focused";
     params.includeClientHeartbeatSessionId = true;
     QString superProperties = QJsonDocument(identity.buildClientProperties(params).toJson())
                                       .toJson(QJsonDocument::Compact)
