@@ -49,6 +49,7 @@ public:
 
     // for the qos heartbeat
     void setActiveState(bool focused, bool rtcConnected);
+    void sendUpdateTimeSpentSessionId();
 
     // Debug: simulate a server RECONNECT opcode
     void debugForceReconnect();

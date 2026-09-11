@@ -32,6 +32,8 @@ ClientInstance::ClientInstance(const AccountInfo &info,
       memberRepo(info.id)
 {
     client = new Discord::Client(info.token, info.gatewayUrl, info.restUrl, info.proxy, captchaResolver, this);
+    connect(client, &Discord::Client::heartbeatSessionChanged, this, &ClientInstance::onHeartbeatSessionChanged);
+    client->restoreHeartbeatSession(accountRepo.getHeartbeatSession(info.id));
 
     Storage::DatabaseManager::instance().openCacheDatabase(info.id);
 
@@ -308,6 +310,11 @@ void ClientInstance::onVoiceConnected()
 void ClientInstance::onVoiceDisconnected()
 {
     client->setVoiceConnected(false);
+}
+
+void ClientInstance::onHeartbeatSessionChanged(const Discord::HeartbeatSession &session)
+{
+    accountRepo.updateHeartbeatSession(account.id, session);
 }
 
 void ClientInstance::saveGuild(const Discord::GatewayGuild &guild, const QList<Discord::Member> *members, Snowflake myId, QSqlDatabase &db)

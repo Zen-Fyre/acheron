@@ -318,6 +318,8 @@ void Gateway::handleReady(const Inbound &data)
     sessionEstablished = true;
 
     emit gatewayReady(msg);
+
+    sendUpdateTimeSpentSessionId();
 }
 
 void Gateway::handleReadySupplemental(const Inbound &data)
@@ -964,6 +966,24 @@ void Gateway::sendHeartbeat()
     heartbeat.seq = lastReceivedSequence;
     heartbeat.qos = consumeQoSPayload();
     sendPayload(heartbeat.toJson());
+}
+
+void Gateway::sendUpdateTimeSpentSessionId()
+{
+    if (!sessionEstablished)
+        return;
+
+    auto session = identity.heartbeatSession();
+
+    if (!session)
+        return;
+
+    UpdateTimeSpentSessionId payload;
+    payload.initializationTimestamp = session->createdAtMs;
+    payload.sessionId = session->id;
+    payload.clientLaunchId = identity.clientLaunchId();
+    sendPayload(payload.toJson());
+    sendHeartbeat();
 }
 
 static QoSPayload makeQoSPayload(const QList<QString> &reasons)

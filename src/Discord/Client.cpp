@@ -54,10 +54,12 @@ Client::Client(const QString &token, const QString &gatewayUrl, const QString &b
                const Core::ProxyConfig &proxy, CaptchaResolver *captchaResolver, QObject *parent)
     : QObject(parent), token(token), baseUrl(baseUrl), proxyConfig(proxy)
 {
-    identity.regenerateClientHeartbeatSessionId();
-
     gateway = new Gateway(token, gatewayUrl, identity, proxy, this);
     httpClient = new HttpClient(baseUrl, token, identity, proxy, captchaResolver, this);
+
+    heartbeatSessionTimer = new QTimer(this);
+    heartbeatSessionTimer->setInterval(15 * 60 * 1000);
+    connect(heartbeatSessionTimer, &QTimer::timeout, this, &Client::onHeartbeatSessionTimer);
 
     appFocused = !qGuiApp || qGuiApp->applicationState() == Qt::ApplicationActive;
     if (qGuiApp) {
@@ -1048,8 +1050,40 @@ void Client::setVoiceConnected(bool connected)
 
 void Client::updateActiveState()
 {
-    identity.setAppFocused(appFocused);
+    identity.setActivity(appFocused, voiceConnected);
     gateway->setActiveState(appFocused, voiceConnected);
+    syncHeartbeatSession();
+
+    if (appFocused || voiceConnected) {
+        if (!heartbeatSessionTimer->isActive())
+            heartbeatSessionTimer->start();
+    } else {
+        heartbeatSessionTimer->stop();
+    }
+}
+
+void Client::restoreHeartbeatSession(const std::optional<HeartbeatSession> &stored)
+{
+    identity.restoreHeartbeatSession(stored);
+    syncHeartbeatSession();
+}
+
+void Client::onHeartbeatSessionTimer()
+{
+    syncHeartbeatSession();
+}
+
+void Client::syncHeartbeatSession()
+{
+    HeartbeatSessionUpdate update = identity.touchHeartbeatSession();
+    if (update == HeartbeatSessionUpdate::Unchanged)
+        return;
+
+    if (std::optional<HeartbeatSession> session = identity.heartbeatSession())
+        emit heartbeatSessionChanged(*session);
+
+    if (update == HeartbeatSessionUpdate::Created)
+        gateway->sendUpdateTimeSpentSessionId();
 }
 
 void Client::ackMessage(Snowflake channelId, Snowflake messageId, int flags, int lastViewed)
