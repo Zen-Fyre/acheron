@@ -10,6 +10,7 @@
 
 #include "Logging.hpp"
 #include "Discord/CdnUrls.hpp"
+#include "Discord/CurlUtils.hpp"
 
 namespace Acheron {
 namespace Core {
@@ -210,8 +211,7 @@ void ImageManager::fetchFromNetwork(const QUrl &url, const QSize &size, PinGroup
     const bool deviceScaled = scalesToDevicePixels(url);
 
     QUrl fetchUrl = isDiscordProxyUrl(url) ? buildOptimizedUrl(url, size, dpr) : url;
-    QNetworkRequest request(fetchUrl);
-    QNetworkReply *reply = nam->get(request);
+    QNetworkReply *reply = nam->get(Discord::CurlUtils::qtRequest(fetchUrl));
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, url, size, deviceScaled, dpr]() {
         ImageRequestKey k{ url, size };
@@ -358,7 +358,7 @@ void ImageManager::fetch(const QUrl &url, Snowflake accountId, QObject *context,
         return;
     }
 
-    QNetworkReply *reply = nam->get(QNetworkRequest(url));
+    QNetworkReply *reply = nam->get(Discord::CurlUtils::qtRequest(url));
     connect(reply, &QNetworkReply::finished, reply, &QObject::deleteLater);
     connect(reply, &QNetworkReply::finished, context, [reply, done = std::move(done)]() {
         done(reply->error() == QNetworkReply::NoError ? reply->readAll() : QByteArray());
@@ -373,7 +373,7 @@ void ImageManager::download(const QUrl &url, Snowflake accountId, const QString 
         return;
     }
 
-    QNetworkReply *reply = nam->get(QNetworkRequest(url));
+    QNetworkReply *reply = nam->get(Discord::CurlUtils::qtRequest(url));
     auto *file = new QFile(path, reply);
     if (!file->open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qCWarning(LogCore) << "Failed to open" << path << "for writing:" << file->errorString();

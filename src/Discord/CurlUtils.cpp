@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QLocale>
+#include <QOperatingSystemVersion>
 #include <QRegularExpression>
 #include <QTimeZone>
 #include <QNetworkAccessManager>
@@ -51,7 +52,7 @@ void ensureBuildNumber(QNetworkAccessManager *nam, std::function<void()> done)
 
     qCInfo(LogNetwork) << "Fetching Discord build number...";
 
-    QNetworkRequest request(QUrl("https://discord.com/app"));
+    QNetworkRequest request = qtRequest(QUrl("https://discord.com/app"));
     request.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
     request.setTransferTimeout(BUILD_NUMBER_TIMEOUT_MS);
 
@@ -78,7 +79,7 @@ void ensureBuildNumber(QNetworkAccessManager *nam, std::function<void()> done)
         QString sentryPath = sentryMatch.captured(0);
         QString sentryUrl = "https://discord.com" + sentryPath;
 
-        QNetworkRequest sentryRequest(sentryUrl);
+        QNetworkRequest sentryRequest = qtRequest(QUrl(sentryUrl));
         sentryRequest.setHeader(QNetworkRequest::UserAgentHeader, getUserAgent());
         sentryRequest.setTransferTimeout(BUILD_NUMBER_TIMEOUT_MS);
 
@@ -109,6 +110,17 @@ int getBuildNumber()
     if (cachedBuildNumber > 0)
         return cachedBuildNumber;
     return fallbackBuildNumber;
+}
+
+QNetworkRequest qtRequest(const QUrl &url)
+{
+    QNetworkRequest request(url);
+#ifdef Q_OS_WIN
+    static const bool schannelLacksAlpn = QOperatingSystemVersion::current() < QOperatingSystemVersion::Windows8_1;
+    if (schannelLacksAlpn)
+        request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+#endif
+    return request;
 }
 
 QString getCertificatePath()
