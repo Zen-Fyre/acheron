@@ -2,7 +2,6 @@
 
 #include <QString>
 #include <QObject>
-#include <QNetworkRequest>
 
 #include "Core/ProxyConfig.hpp"
 
@@ -36,8 +35,6 @@ QString getSystemLocale();
 
 void ensureBuildNumber(QNetworkAccessManager *nam, std::function<void()> done);
 int getBuildNumber();
-
-QNetworkRequest qtRequest(const QUrl &url);
 
 // cacert, curl-impersonate, user-agent
 void applyCommonOptions(CURL *curl);
