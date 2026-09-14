@@ -32,8 +32,11 @@ struct MediaHit
     QString filename;
     qint64 fileSizeBytes = -1;
 
+    QUrl linkUrl;
+
     [[nodiscard]] bool isImage() const { return !imageUrl.isEmpty(); }
     [[nodiscard]] bool isFile() const { return !fileUrl.isEmpty(); }
+    [[nodiscard]] bool hasLink() const { return !linkUrl.isEmpty() && !linkUrl.isLocalFile(); }
 };
 
 static MediaHit mediaAt(const ChatLayout::ResolvedLayout &resolved, const ChatLayout::HitRegion &region,
@@ -41,11 +44,12 @@ static MediaHit mediaAt(const ChatLayout::ResolvedLayout &resolved, const ChatLa
 {
     using Kind = ChatLayout::HitRegion::Kind;
     MediaHit hit;
-    auto embedImage = [&hit](const QUrl &url, const QPixmap &pixmap) {
-        hit.imageUrl = url;
+    auto embedImage = [&hit](const QUrl &proxyUrl, const QUrl &originalUrl, const QPixmap &pixmap) {
+        hit.imageUrl = proxyUrl;
         hit.preview = pixmap;
-        hit.fileUrl = url;
-        hit.filename = QFileInfo(url.path()).fileName();
+        hit.fileUrl = proxyUrl;
+        hit.filename = QFileInfo(proxyUrl.path()).fileName();
+        hit.linkUrl = originalUrl;
     };
 
     switch (region.kind) {
@@ -65,6 +69,7 @@ static MediaHit mediaAt(const ChatLayout::ResolvedLayout &resolved, const ChatLa
         hit.fileUrl = att.originalUrl;
         hit.filename = att.filename;
         hit.fileSizeBytes = att.fileSizeBytes;
+        hit.linkUrl = att.originalUrl;
         break;
     }
     case Kind::EmbedThumbnail: {
@@ -72,15 +77,17 @@ static MediaHit mediaAt(const ChatLayout::ResolvedLayout &resolved, const ChatLa
             break;
         const EmbedData &embed = resolved.ctx.embeds[region.index];
         if (!embed.thumbnail.isNull())
-            embedImage(embed.thumbnailUrl, embed.thumbnail);
+            embedImage(embed.thumbnailUrl, embed.thumbnailOriginalUrl, embed.thumbnail);
         break;
     }
     case Kind::EmbedImage: {
         if (region.index < 0 || region.index >= resolved.ctx.embeds.size())
             break;
         const EmbedData &embed = resolved.ctx.embeds[region.index];
-        if (region.subIndex >= 0 && region.subIndex < embed.images.size())
-            embedImage(embed.images[region.subIndex].url, embed.images[region.subIndex].pixmap);
+        if (region.subIndex >= 0 && region.subIndex < embed.images.size()) {
+            const EmbedImageData &image = embed.images[region.subIndex];
+            embedImage(image.url, image.originalUrl, image.pixmap);
+        }
         break;
     }
     default:
@@ -855,9 +862,11 @@ void ChatView::contextMenuEvent(QContextMenuEvent *event)
             saveMedia(hit.fileUrl, hit.filename);
         });
     }
-    if (region && !region->url.isEmpty() && !region->url.startsWith(QLatin1String("acheron://"))) {
-        QString linkUrl = region->url;
-        QAction *copyLinkAction = menu.addAction(tr("Copy Link"));
+    QString linkUrl = region ? region->url : QString();
+    if (hit.hasLink())
+        linkUrl = hit.linkUrl.toString(QUrl::FullyEncoded);
+    if (!linkUrl.isEmpty() && !linkUrl.startsWith(QLatin1String("acheron://"))) {
+        QAction *copyLinkAction = menu.addAction(hit.isImage() ? tr("Copy Image Link") : tr("Copy Link"));
         connect(copyLinkAction, &QAction::triggered, this, [linkUrl]() {
             QGuiApplication::clipboard()->setText(linkUrl);
         });
