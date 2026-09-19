@@ -200,12 +200,16 @@ CURL *RequestWorker::buildEasyHandle(TransferContext *ctx)
         if (ctx->uploadFile)
             headers = curl_slist_append(headers, "Expect:"); // CURLOPT_UPLOAD turns this on
     } else {
+        if (!token.isEmpty())
+            headers = curl_slist_append(headers, ("Authorization: " + token).toUtf8().constData());
         std::string sToken = token.toStdString();
         headers = curl_slist_append(headers, ("Authorization: " + sToken).c_str());
         if (!desc.multipart && !desc.body.isEmpty())
             headers = curl_slist_append(headers, "Content-Type: application/json");
 
-        CurlUtils::appendDiscordHeaders(&headers, identity, "https://discord.com/channels/@me");
+        CurlUtils::appendDiscordHeaders(&headers, identity, desc.referer);
+        if (!desc.fingerprint.isEmpty())
+            headers = curl_slist_append(headers, ("X-Fingerprint: " + desc.fingerprint).toUtf8().constData());
 
         if (desc.solution)
             appendCaptchaHeaders(headers, *desc.solution);

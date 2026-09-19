@@ -25,6 +25,7 @@ public:
 private slots:
     void onSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
     void onAddClicked();
+    void onLoginClicked();
     void onQrLoginClicked();
     void onRemoveClicked();
     void onContextMenuRequested(const QPoint &pos);
@@ -56,6 +57,7 @@ private:
     QPushButton *disconnectButton;
 
     void setupUi();
+    void addAccountWithToken(const QString &token, const QString &username, const Core::ProxyConfig &proxy);
     void updateDetails(const Acheron::Core::AccountInfo *info);
     void performConnect(int row);
     void performDisconnect(int row);

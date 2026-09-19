@@ -7,6 +7,7 @@
 #include "Core/TokenStore.hpp"
 #include "Core/TokenUtils.hpp"
 #include "Discord/CdnUrls.hpp"
+#include "UI/Dialogs/DirectLoginDialog.hpp"
 #include "UI/Dialogs/QRLoginDialog.hpp"
 
 namespace Acheron {
@@ -48,10 +49,12 @@ void AccountsWindow::setupUi()
 
     QHBoxLayout *btnLayout = new QHBoxLayout();
     QPushButton *addBtn = new QPushButton(tr("Add"), this);
+    QPushButton *loginBtn = new QPushButton(tr("Log in"), this);
     QPushButton *qrBtn = new QPushButton(tr("Log in with QR Code"), this);
     removeButton = new QPushButton(tr("Remove"), this);
     removeButton->setEnabled(false);
     btnLayout->addWidget(addBtn);
+    btnLayout->addWidget(loginBtn);
     btnLayout->addWidget(qrBtn);
     btnLayout->addWidget(removeButton);
     leftLayout->addLayout(btnLayout);
@@ -124,6 +127,7 @@ void AccountsWindow::setupUi()
     mainLayout->addWidget(splitter);
 
     connect(addBtn, &QPushButton::clicked, this, &AccountsWindow::onAddClicked);
+    connect(loginBtn, &QPushButton::clicked, this, &AccountsWindow::onLoginClicked);
     connect(qrBtn, &QPushButton::clicked, this, &AccountsWindow::onQrLoginClicked);
     connect(removeButton, &QPushButton::clicked, this, &AccountsWindow::onRemoveClicked);
 
@@ -203,27 +207,16 @@ void AccountsWindow::onAddClicked()
         return;
     }
 
-    QString token = dlg.getToken();
-    if (token.isEmpty())
+    addAccountWithToken(dlg.getToken(), {}, dlg.getProxy());
+}
+
+void AccountsWindow::onLoginClicked()
+{
+    DirectLoginDialog dlg(session, this);
+    if (dlg.exec() != QDialog::Accepted)
         return;
 
-    Snowflake userId = TokenUtils::getIdAndCheckToken(token);
-    if (!userId.isValid()) {
-        // todo: complain
-        return;
-    }
-
-    AccountInfo acc;
-    acc.id = userId;
-
-    acc.displayName = "unknown";
-    acc.username = "unknown";
-    acc.token = token;
-    acc.proxy = dlg.getProxy();
-
-    // acc.avatar =
-
-    model->addAccount(acc);
+    addAccountWithToken(dlg.getToken(), {}, dlg.getProxy());
 }
 
 void AccountsWindow::onQrLoginClicked()
@@ -238,7 +231,12 @@ void AccountsWindow::onQrLoginClicked()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    QString token = dlg.getToken();
+    addAccountWithToken(dlg.getToken(), dlg.getUsername(), proxyDlg.getProxy());
+}
+
+void AccountsWindow::addAccountWithToken(const QString &token, const QString &username,
+                                         const Core::ProxyConfig &proxy)
+{
     if (token.isEmpty())
         return;
 
@@ -251,9 +249,9 @@ void AccountsWindow::onQrLoginClicked()
     AccountInfo acc;
     acc.id = userId;
     acc.token = token;
-    acc.username = dlg.getUsername().isEmpty() ? QStringLiteral("unknown") : dlg.getUsername();
+    acc.username = username.isEmpty() ? "unknown" : username;
     acc.displayName = acc.username;
-    acc.proxy = proxyDlg.getProxy();
+    acc.proxy = proxy;
 
     model->addAccount(acc);
 }
