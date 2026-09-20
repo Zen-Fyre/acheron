@@ -125,7 +125,7 @@ jobs:
         with:
           name: acheron-windows-${{ matrix.build_type }}
           path: acheron-windows-${{ matrix.build_type }}
-
+/*
   build-windows-minimal:
     runs-on: windows-latest
 
@@ -342,7 +342,7 @@ jobs:
         with:
           name: acheron-windows-qt5-MinSizeRel
           path: acheron-windows-qt5-MinSizeRel
-
+*/
   build-linux:
     runs-on: ubuntu-latest
 
@@ -556,7 +556,7 @@ jobs:
         with:
           name: acheron-appimage
           path: Acheron*.AppImage
-
+/*
   build-macos:
     runs-on: macos-latest
 
@@ -660,3 +660,4 @@ jobs:
         with:
           name: acheron-macos
           path: acheron-macos
+*/
