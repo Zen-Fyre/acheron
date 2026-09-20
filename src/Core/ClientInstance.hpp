@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
+#include <QSystemTrayIcon>
 
 #include <functional>
 #include <memory>
@@ -36,6 +37,12 @@ class ForumManager;
 class ClientInstance : public QObject
 {
     Q_OBJECT
+
+//SLOP CODE
+private:
+    QSystemTrayIcon *trayIcon = nullptr;
+//END OF SLOP CODE
+
 public:
     explicit ClientInstance(const AccountInfo &info,
                             Discord::CaptchaResolver *captchaResolver = nullptr,

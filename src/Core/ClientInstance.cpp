@@ -49,6 +49,12 @@ ClientInstance::ClientInstance(const AccountInfo &info,
         return channelLinkParts(ref);
     });
 
+    //SLOP CODE
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(QIcon(":/icons/acheron.svg"));
+    trayIcon->show();
+    //END OF SLOP CODE
+
     permissionManager = new PermissionManager(info.id, this);
     readStateManager = new ReadStateManager(info.id, permissionManager, this);
     forumManager = new ForumManager(client, channelRepo, readStateManager, this);
@@ -1070,6 +1076,23 @@ void ClientInstance::onMessagesReceived(const MessageRequestResult &result)
 
     if (!missingUserIds.isEmpty())
         client->requestGuildMembers(guildId, missingUserIds);
+    //SLOP CODE
+    bool isFirstMessage = true;
+    for (const auto &msg : result.messages) {
+        if (isFirstMessage) {
+            QString authorName = msg.author->username.c_str();
+            QString messageText = QString::fromStdString(msg.content).left(100);
+
+            trayIcon->showMessage(
+                    authorName,
+                    messageText,
+                    QSystemTrayIcon::Information,
+                    5000
+                );
+            isFirstMessage = false;
+        }
+    }
+    //END OF SLOP CODE
 }
 
 void ClientInstance::onMessageCreated(const Discord::Message &msg)
