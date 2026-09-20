@@ -1079,9 +1079,9 @@ void ClientInstance::onMessagesReceived(const MessageRequestResult &result)
     //SLOP CODE
     bool isFirstMessage = true;
     for (const auto &msg : result.messages) {
-        if (isFirstMessage) {
-            QString authorName = msg.author->username.c_str();
-            QString messageText = QString::fromStdString(msg.content).left(100);
+        if (isFirstMessage && msg.author.hasValue()) {
+            QString authorName = msg.author->username;
+            QString messageText = msg.content.left(100);
 
             trayIcon->showMessage(
                     authorName,
