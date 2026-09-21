@@ -1076,21 +1076,28 @@ void ClientInstance::onMessagesReceived(const MessageRequestResult &result)
 
     if (!missingUserIds.isEmpty())
         client->requestGuildMembers(guildId, missingUserIds);
-    //SLOP CODE
-    bool isFirstMessage = true;
-    for (const auto &msg : result.messages) {
-        if (isFirstMessage && msg.author.hasValue()) {
-            QString authorName = msg.author->username;
-            QString messageText = msg.content.get().left(100);
 
-            trayIcon->showMessage(
-                    authorName,
-                    messageText,
-                    QSystemTrayIcon::Information,
-                    5000
-                );
-            isFirstMessage = false;
-        }
+    //SLOP CODE
+    for (const auto &msg : result.messages) {
+        if (!msg.author.hasValue())
+            continue;
+
+        QString authorName = msg.author->username;
+        QString messageText = msg.content.get().left(100);
+
+        trayIcon->showMessage(
+            authorName,
+            messageText,
+            QSystemTrayIcon::Information,
+            5000
+        );
+
+        // Play sound
+        QSoundEffect sound;
+        sound.setSource(QUrl::fromLocalFile(":/resources/message.mp3"));
+        sound.play();
+
+        break;  // Only notify on first message
     }
     //END OF SLOP CODE
 }

@@ -5,6 +5,7 @@
 #include <QSet>
 #include <QString>
 #include <QSystemTrayIcon>
+#include <QSoundEffect>
 
 #include <functional>
 #include <memory>

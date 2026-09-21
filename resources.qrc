@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>resources/message.mp3</file>
         <file>resources/placeholder.png</file>
         <file>resources/emoji_data.json</file>
 		<file>resources/icons/acheron.svg</file>
