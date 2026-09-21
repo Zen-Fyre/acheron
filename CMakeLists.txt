@@ -54,7 +54,7 @@ if(ENABLE_VOICE)
     endif()
 endif()
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Svg Network Sql Test LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Svg Network Sql Multimedia Test LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR}
     COMPONENTS
         Core
@@ -63,6 +63,7 @@ find_package(Qt${QT_VERSION_MAJOR}
         Svg
         Network
         Sql
+        Multimedia
         Concurrent
         Test
         LinguistTools
