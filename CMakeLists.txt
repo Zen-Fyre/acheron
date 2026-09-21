@@ -316,24 +316,24 @@ endif()
 if(BUILD_TESTS)
     qt_add_executable(TestMarkdown tests/tst_Markdown.cpp src/Core/Markdown/Parser.cpp
         src/Core/EmojiSegmenter.cpp src/Core/Snowflake.cpp)
-    target_link_libraries(TestMarkdown PRIVATE Qt::Core Qt::Test Qt::Multimedia)
+    target_link_libraries(TestMarkdown PRIVATE Qt::Core Qt::Test)
     target_include_directories(TestMarkdown PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/vendor/emoji-segmenter)
     add_test(NAME MarkdownTests COMMAND TestMarkdown)
 
     qt_add_executable(TestFrecency tests/tst_Frecency.cpp src/Core/Emoji/FrecencyTracker.cpp)
-    target_link_libraries(TestFrecency PRIVATE Qt::Core Qt::Test Qt::Multimedia)
+    target_link_libraries(TestFrecency PRIVATE Qt::Core Qt::Test)
     target_include_directories(TestFrecency PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     add_test(NAME FrecencyTests COMMAND TestFrecency)
 
     qt_add_executable(TestUnicodeEmoji tests/tst_UnicodeEmoji.cpp
         src/Core/Emoji/UnicodeEmojiIndex.cpp src/Core/Logging.cpp resources.qrc)
-    target_link_libraries(TestUnicodeEmoji PRIVATE Qt::Core Qt::Test Qt::Multimedia)
+    target_link_libraries(TestUnicodeEmoji PRIVATE Qt::Core Qt::Test)
     target_include_directories(TestUnicodeEmoji PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     add_test(NAME UnicodeEmojiTests COMMAND TestUnicodeEmoji)
 
     qt_add_executable(TestProto tests/tst_Proto.cpp src/Proto/ProtoReader.cpp
         src/Proto/ProtoWriter.cpp src/Proto/FrecencySettings.cpp src/Core/Logging.cpp)
-    target_link_libraries(TestProto PRIVATE Qt::Core Qt::Test Qt::Multimedia)
+    target_link_libraries(TestProto PRIVATE Qt::Core Qt::Test)
     target_include_directories(TestProto PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     add_test(NAME ProtoTests COMMAND TestProto)
 
@@ -341,7 +341,7 @@ if(BUILD_TESTS)
         src/Core/Logging.cpp src/Core/ImageManager.cpp src/Core/Snowflake.cpp
         src/Discord/Voice/Socks5UdpAssociation.cpp)
 
-    target_link_libraries(TestProxy PRIVATE Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::Test Qt::Multimedia)
+    target_link_libraries(TestProxy PRIVATE Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::Test)
     target_include_directories(TestProxy PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     add_test(NAME ProxyTests COMMAND TestProxy)
 endif()
