@@ -1081,7 +1081,7 @@ void ClientInstance::onMessagesReceived(const MessageRequestResult &result)
     for (const auto &msg : result.messages) {
         if (isFirstMessage && msg.author.hasValue()) {
             QString authorName = msg.author->username;
-            QString messageText = msg.content.left(100);
+            QString messageText = msg.content.get().left(100);
 
             trayIcon->showMessage(
                     authorName,
