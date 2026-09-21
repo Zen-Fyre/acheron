@@ -42,6 +42,9 @@ class ClientInstance : public QObject
 //SLOP CODE
 private:
     QSystemTrayIcon *trayIcon = nullptr;
+
+private:
+    std::unique_ptr<QSoundEffect> notificationSound;
 //END OF SLOP CODE
 
 public:

@@ -53,6 +53,9 @@ ClientInstance::ClientInstance(const AccountInfo &info,
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/icons/acheron.svg"));
     trayIcon->show();
+
+    notificationSound = std::make_unique<QSoundEffect>(this);
+    notificationSound->setSource(QUrl::fromLocalFile(":/resources/message.mp3"));
     //END OF SLOP CODE
 
     permissionManager = new PermissionManager(info.id, this);
@@ -1082,7 +1085,7 @@ void ClientInstance::onMessagesReceived(const MessageRequestResult &result)
         if (!msg.author.hasValue())
             continue;
 
-        QString authorName = msg.author->username;
+        QString authorName = msg.author->username.get();
         QString messageText = msg.content.get().left(100);
 
         trayIcon->showMessage(
@@ -1092,11 +1095,7 @@ void ClientInstance::onMessagesReceived(const MessageRequestResult &result)
             5000
         );
 
-        // Play sound
-        QSoundEffect sound;
-        sound.setSource(QUrl::fromLocalFile(":/resources/message.mp3"));
-        sound.play();
-
+        notificationSound->play();
         break;  // Only notify on first message
     }
     //END OF SLOP CODE
